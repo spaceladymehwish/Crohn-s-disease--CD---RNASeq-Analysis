@@ -25,32 +25,34 @@ library(apeglm)
 library(RColorBrewer)
 library(ggplot2)
 
-setwd("D:/2nd_sem/NGS/RNASeq project/RNASeq/RNASeq")
+setwd("D:/2nd_sem/NGS/FINALS/Project2-RNASeq/Crohn-s-disease--CD---RNASeq-Analysis/Crohn-s-disease--CD---RNASeq-Analysis")
 
 #Read Metadata
-metadata <- read.delim("metadata.tsv")
+metadata <- read.delim("Metadata.txt")
 
 # Import the gene raw counts
-counts <- read.delim("counts.tsv")
+counts <- read.delim("Counts.txt")
 
 #Analysis
 
 #Create DESeq2 Object
-dds = DESeqDataSetFromMatrix(counts,metadata,~type)
+dds = DESeqDataSetFromMatrix(counts,metadata,~Category)
 
-rld <- rlog(dds) #rlog transformation - scaling and normalization
+#vst log transformation
+vst <- vst(dds)
+
 
 #Visualize
-head(assay(rld))
+head(assay(vst))
 
 #Calculate Sample-to-Sample distances
 
-sampleDists <- dist( t( assay(rld) ) )
+sampleDists <- dist( t( assay(vst) ) )
 
 #using normalized data
 
 sampleDistMatrix <- as.matrix( sampleDists )
-rownames(sampleDistMatrix) <- paste( rld$type, rld$id, sep="-" )
+rownames(sampleDistMatrix) <- paste( vst$Category, vst$Sample, sep="-" )
 colnames(sampleDistMatrix) <- NULL
 colors <- colorRampPalette( rev(brewer.pal(9, "Blues")) )(255)
 pheatmap(sampleDistMatrix,
@@ -60,13 +62,13 @@ pheatmap(sampleDistMatrix,
 
 #PCA
 #Simple
-plotPCA(rld, intgroup = c("type"))
+plotPCA(vst, intgroup = c("Category"))
 
 #Perform DESeq analysis
 
 #Relevel to make "normal" appear first in the data
 
-dds$type <- relevel(dds$type, "normal")
+dds$Category <- relevel(dds$Category, "non inflammatory bowel disease control")
 
 #Run DESeq2
 dds <- DESeq(dds)
@@ -121,11 +123,11 @@ head(resSig[ order( -resSig$log2FoldChange ), ]) #- so descending, not - so asce
 
 #Quick visual of top gene
 topGene <- rownames(res)[which.min(res$padj)]
-plotCounts(dds, gene=topGene, intgroup=c("type"))
+plotCounts(dds, gene=topGene, intgroup=c("Category"))
 
 #ggplot2
-data <- plotCounts(dds, gene=topGene, intgroup=c("type","id"), returnData=TRUE)
-ggplot(data, aes(x=type, y=count, fill=type)) +
+data <- plotCounts(dds, gene=topGene, intgroup=c("Category","Sample"), returnData=TRUE)
+ggplot(data, aes(x=Category, y=count, fill=Category)) +
   scale_y_log10() + 
   geom_dotplot(binaxis="y", stackdir="center")
 
@@ -145,21 +147,21 @@ EnhancedVolcano(res,
                 lab = rownames(counts),
                 x = 'log2FoldChange',
                 y = 'pvalue',
-                pCutoff = 10e-5,
-                FCcutoff = 1.333,
+                pCutoff = 10e-9,
+                FCcutoff = 2,
                 xlim = c(-5.7, 5.7),
                 ylim = c(0, -log10(10.2e-12)),
                 pointSize = 1.3,
                 labSize = 2.6,
-                title = 'The results',
+                title = 'Crohns disease vs non inflammatory bowel disease control',
                 subtitle = 'Differential expression analysis',
-                caption = 'log2fc cutoff=1.333; p value cutof=10e-5',
+                caption = 'log2fc cutoff=2; p value cutof=10e-9',
                 legendPosition = "right",
                 legendLabSize = 14,
                 col = c('lightblue', 'orange', 'blue', 'red2'),
                 colAlpha = 0.6,
                 drawConnectors = TRUE,
-                hline = c(10e-8),
+                hline = c(10e-9),
                 widthConnectors = 0.5)
 
 #Create publication grade volcanoplot with marked genes of interest
@@ -195,10 +197,10 @@ write.table(finaltable1, file = 'finaltable.tsv', sep = "\t",
 library("genefilter")
 
 
-topVarGenes <- head(order(-rowVars(assay(rld))),20)
-mat <- assay(rld)[ topVarGenes, ]
+topVarGenes <- head(order(-rowVars(assay(vst))),20)
+mat <- assay(vst)[ topVarGenes, ]
 mat <- mat - rowMeans(mat)
-df <- as.data.frame(colData(rld)[,c("type","id")])
+df <- as.data.frame(colData(vst)[,c("Category","Sample")])
 pheatmap(mat, annotation_col=df)
 
 #save plot pheatmap as jpg

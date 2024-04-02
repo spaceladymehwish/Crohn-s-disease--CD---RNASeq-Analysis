@@ -212,15 +212,31 @@ highest3<- gsea_result_df %>%
            # This returns the 3 rows with the largest NES values
            dplyr::slice_max(NES, n = 3)
 
+view(highest3)
 
-#HALLMARK_E2F_TARGETS
-
+#HALLMARK_TNFA_SIGNALING_VIA_NFKB
 most_positive_nes_plot <- enrichplot::gseaplot(
-                          gsea_results,
-                          geneSetID = "HALLMARK_E2F_TARGETS",
-                          title = "HALLMARK_E2F_TARGETS",
-                          color.line = "#0d76ff")
+  gsea_results,
+  geneSetID = "HALLMARK_TNFA_SIGNALING_VIA_NFKB",
+  title = "HALLMARK_TNFA_SIGNALING_VIA_NFKB",
+  color.line = "#0d76ff")
 most_positive_nes_plot
+  
+#HALLMARK_INFLAMMATORY_RESPONSE
+most_positive_nes_plot1 <- enrichplot::gseaplot(
+  gsea_results,
+  geneSetID = "HALLMARK_INFLAMMATORY_RESPONSE",
+  title = "HALLMARK_INFLAMMATORY_RESPONSE",
+  color.line = "#0d76ff")
+most_positive_nes_plot1
+
+#HALLMARK_EPITHELIAL_MESENCHYMAL_TRANSITION
+most_positive_nes_plot2 <- enrichplot::gseaplot(
+  gsea_results,
+  geneSetID = "HALLMARK_EPITHELIAL_MESENCHYMAL_TRANSITION",
+  title = "HALLMARK_EPITHELIAL_MESENCHYMAL_TRANSITION",
+  color.line = "#0d76ff")
+most_positive_nes_plot2
 
 
 #Most negative NES
@@ -236,6 +252,23 @@ most_negative_nes_plot <- enrichplot::gseaplot(
                           title = "HALLMARK_OXIDATIVE_PHOSPHORYLATION",
                           color.line = "#0d76ff")
 most_negative_nes_plot
+
+#HALLMARK_ESTROGEN_RESPONSE_EARLY
+most_negative_nes_plot1 <- enrichplot::gseaplot(
+  gsea_results,
+  geneSetID = "HALLMARK_ESTROGEN_RESPONSE_EARLY",
+  title = "HALLMARK_ESTROGEN_RESPONSE_EARLY",
+  color.line = "#0d76ff")
+most_negative_nes_plot1
+
+#HALLMARK_UV_RESPONSE_UP
+most_negative_nes_plot2 <- enrichplot::gseaplot(
+  gsea_results,
+  geneSetID = "HALLMARK_UV_RESPONSE_UP",
+  title = "HALLMARK_UV_RESPONSE_UP",
+  color.line = "#0d76ff")
+most_negative_nes_plot2
+
 
 #Export results to file
 
