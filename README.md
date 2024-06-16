@@ -1,1 +1,1 @@
-RNASeq analysis pipeline using crohns disease dataset
+GSEA pipeline using crohns disease dataset
